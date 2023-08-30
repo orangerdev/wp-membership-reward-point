@@ -1,0 +1,39 @@
+#wps_cart_points {
+	color: black;
+}
+
+.pmp-crp-potential-cashback-notification {
+	background: powderblue;
+}
+
+.pmp-crp-apply-point-notification {
+	background: lightgoldenrodyellow;
+}
+
+.pmp-crp-apply-point-notification tr:first-of-type,
+.pmp-crp-potential-cashback-notification tr:first-of-type {
+	margin-top: 2rem;
+}
+
+.pmp-crp-apply-point-notification td,
+.pmp-crp-apply-point-notification th,
+.pmp-crp-potential-cashback-notification td,
+.pmp-crp-potential-cashback-notification th {
+	border: none !important;
+}
+
+.pmp-crp-apply-point-notification p,
+.pmp-crp-potential-cashback-notification p {
+	text-align: left;
+	margin: 0;
+}
+
+.pmp-crp-apply-point-notification button {
+	box-shadow: 0 0 0.2rem rgba(0, 0, 0, 0.25);
+	border-radius: 4px;
+	background-color: darkgoldenrod;
+	color: white;
+}
+
+.pmp-crp-apply-point-notification button:hover {
+}
