@@ -19,7 +19,7 @@ if (!defined('ABSPATH')) {
     <?php echo wc_price($cashback_gained); ?>
   </td>
 </tr>
-<tr class="pmp-crp-potential-cashback-notification">
+<tr class="pmp-crp-potential-cashback-notification" style="margin-bottom: 2rem;">
   <td colspan="2">
     <p class="pmp-crp-potential-cashback-notification-message">
       <?php esc_html_e("You will get this cashback after completing the order.", "pmp-crp"); ?>

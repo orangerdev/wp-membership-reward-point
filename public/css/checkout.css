@@ -1,3 +1,7 @@
+body .wps_wpr_checkout_points_class {
+	display: none !important;
+}
+
 #wps_cart_points {
 	color: black;
 }
