@@ -53,6 +53,19 @@ class Front
   private $cashback_setup = false;
 
   /**
+   * Used point
+   * 
+   * @since   1.0.0
+   * @access  private
+   * @var     bool | float
+   */
+  private $used_point = false;
+
+  private $cart_key = "cart discount";
+
+  private $session_key = 'wps_cart_points';
+
+  /**
    * Initialize the class and set its properties.
    *
    * @since    1.0.0
@@ -80,9 +93,10 @@ class Front
 
     $user_id = get_current_user_id();
 
+
     $membership_id = $wpdb->get_var(
       $wpdb->prepare(
-        "SELECT membership_id FROM {$wpdb->prefix}pmpro_memberships_users WHERE user_id = %d",
+        "SELECT membership_id FROM {$wpdb->prefix}pmpro_memberships_users WHERE user_id = %d AND status='active' ",
         $user_id
       )
     );
@@ -100,6 +114,7 @@ class Front
   {
     if ($user_id === 0)
       return false;
+
 
     if ($this->cashback_setup)
       return $this->cashback_setup;
@@ -221,6 +236,35 @@ class Front
   }
 
   /**
+   * Get maximum apply point
+   * @since   1.0.0
+   * @return  float
+   */
+  protected function get_max_apply_point()
+  {
+    $user_id = get_current_user_id();
+    $cashback_setup = $this->get_membership_cashback_setup($user_id);
+
+    if (!$cashback_setup)
+      return 0;
+
+    $maximum_cashback_used = $cashback_setup['maximum_cashback_used'];
+
+    if ($maximum_cashback_used <= 0)
+      return 0;
+
+    $user_points = floatval(get_user_meta($user_id, 'wps_wpr_points', true));
+
+    if ($user_points < 0)
+      return 0;
+
+    $max_apply_point = $this->get_cashback_total($maximum_cashback_used, WC()->cart->get_cart_contents_total() + WC()->cart->get_shipping_total());
+    $max_apply_point = $max_apply_point > $user_points ? $user_points : $max_apply_point;
+
+    return floatval($max_apply_point);
+  }
+
+  /**
    * Display apply point
    * Hooked via woocommerce_review_order_after_order_total, priority 900
    * @since   1.0.0
@@ -228,25 +272,25 @@ class Front
    */
   public function display_apply_point()
   {
-    if (property_exists(WC()->cart, 'coupon_discount_totals')) :
-      if (WC()->cart->coupon_discount_totals['cart discount'])
-        return;
+    if (WC()->session->__isset($this->session_key)) :
+      return;
     endif;
 
     $user_id = get_current_user_id();
-    $cashback_setup = $this->get_membership_cashback_setup($user_id);
 
-    if (!$cashback_setup)
+    $user_points = floatval(get_user_meta($user_id, 'wps_wpr_points', true));
+
+    if ($user_points <= 0)
       return;
+
+    $cashback_setup = $this->get_membership_cashback_setup($user_id);
 
     $maximum_cashback_used = $cashback_setup['maximum_cashback_used'];
 
     if ($maximum_cashback_used <= 0)
       return;
 
-    $user_points = get_user_meta($user_id, 'wps_wpr_points', true);
-    $cashback_used = $this->get_cashback_total($maximum_cashback_used, WC()->cart->get_cart_contents_total() + WC()->cart->get_shipping_total());
-    $cashback_used = $cashback_used > $user_points ? $user_points : $cashback_used;
+    $cashback_used = $this->get_max_apply_point();
 
     require_once(PMP_CRP_PLUGIN_DIR . 'public/partials/apply-point.php');
   }
@@ -283,13 +327,26 @@ class Front
         return $response;
 
       $wps_cart_points = $this->get_cashback_total($maximum_cashback_used, WC()->cart->get_cart_contents_total() + WC()->cart->get_shipping_total());
-      $get_points      = get_user_meta($user_id, 'wps_wpr_points', true);
+      $get_points      = floatval(get_user_meta($user_id, 'wps_wpr_points', true));
       $get_points      = !empty($get_points) && $get_points > 0 ? $get_points : 0;
+
+      do_action(
+        "inspect",
+        [
+          'apply_point',
+          [
+            'wps_cart_points' => $wps_cart_points,
+            'get_points' => $get_points,
+            'session' => WC()->session,
+            'cart' => WC()->cart
+          ]
+        ]
+      );
 
       // Applied points here.
       if ($get_points > 0 && $wps_cart_points > 0) :
         if ($get_points >= $wps_cart_points) :
-          WC()->session->set('wps_cart_points', $wps_cart_points);
+          WC()->session->set($this->session_key, $wps_cart_points);
           $response['result']  = true;
           $response['message'] = esc_html__('Custom Point has been applied Successfully!', 'points-and-rewards-for-woocommerce');
         else :
