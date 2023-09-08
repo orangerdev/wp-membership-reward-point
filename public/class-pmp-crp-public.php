@@ -261,6 +261,8 @@ class Front
     $max_apply_point = $this->get_cashback_total($maximum_cashback_used, WC()->cart->get_cart_contents_total() + WC()->cart->get_shipping_total());
     $max_apply_point = $max_apply_point > $user_points ? $user_points : $max_apply_point;
 
+    $max_apply_point = floor($max_apply_point / 1000) * 1000;
+
     return floatval($max_apply_point);
   }
 
