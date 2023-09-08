@@ -18,7 +18,7 @@
 	};
 
 	$(document).ready(function () {
-// 		$(".wps_wpr_checkout_points_class").remove();
+		$(".wps_wpr_checkout_points_class").remove();
 		$("body").on("click", "#pmp-crp-apply-point", function () {
 			block($(".woocommerce-cart-form"));
 			block($(".woocommerce-checkout"));
