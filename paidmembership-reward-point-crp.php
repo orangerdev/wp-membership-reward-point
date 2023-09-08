@@ -16,7 +16,7 @@
  * Plugin Name:       PaidMembershipPro - Custom Reward Point
  * Plugin URI:        https://ridwan-arifandi.com
  * Description:       Add maximum gained reward point and set maximum used reward point in checkout
- * Version:           1.0.0
+ * Version:           1.0.1
  * Author:            Ridwan Arifandi
  * Author URI:        https://ridwan-arifandi.com
  * License:           GPL-2.0+
